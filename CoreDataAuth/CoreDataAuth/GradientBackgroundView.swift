@@ -8,6 +8,8 @@
 import UIKit
 
 final class GradientBackgroundView: UIView {
+    
+    // MARK: - LifeCycle
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupGradient()
@@ -17,7 +19,8 @@ final class GradientBackgroundView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupGradient() {	
+    // MARK: - Methods
+    private func setupGradient() {
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = bounds
         
