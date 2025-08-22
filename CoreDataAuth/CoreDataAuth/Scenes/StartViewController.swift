@@ -14,7 +14,7 @@ final class StartViewController: BaseViewController {
     private lazy var gradientView = GradientBackgroundView(frame: view.bounds)
     private let logoImageView = UIImageView()
     private let startLabel = UILabel()
-    private let startButton = UIButton()
+    private let startButton = AppButton(title: "시작하기", size: .large)
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
@@ -41,11 +41,6 @@ final class StartViewController: BaseViewController {
         view.addSubview(startLabel)
  
         // 시작하기 버튼
-        startButton.setTitle("시작하기", for: .normal)
-        startButton.setTitleColor(.white, for: .normal)
-        startButton.titleLabel?.font = .systemFont(ofSize: 32, weight: .bold)
-        startButton.backgroundColor = .main
-        startButton.layer.cornerRadius = 20
         view.addSubview(startButton)
         
     }
