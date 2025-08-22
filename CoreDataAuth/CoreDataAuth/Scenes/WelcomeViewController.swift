@@ -14,8 +14,8 @@ final class WelcomeViewController: BaseViewController {
     private lazy var gradientView = GradientBackgroundView(frame: view.bounds)
     private let nicknameLabel = UILabel()
     private let welcomeLabel = UILabel()
-    private let logoutButton = UIButton()
-    private let unregisterButton = UIButton()
+    private let logoutButton = AppButton(title: "로그아웃", size: .medium)
+    private let unregisterButton = AppButton(title: "회원탈퇴", size: .medium)
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
@@ -47,19 +47,9 @@ final class WelcomeViewController: BaseViewController {
         view.addSubview(welcomeLabel)
  
         // 로그아웃 버튼
-        logoutButton.setTitle("로그아웃", for: .normal)
-        logoutButton.setTitleColor(.white, for: .normal)
-        logoutButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-        logoutButton.backgroundColor = .main
-        logoutButton.layer.cornerRadius = 20
         view.addSubview(logoutButton)
-        
+
         // 회원탈퇴 버튼
-        unregisterButton.setTitle("회원탈퇴", for: .normal)
-        unregisterButton.setTitleColor(.white, for: .normal)
-        unregisterButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-        unregisterButton.backgroundColor = .main
-        unregisterButton.layer.cornerRadius = 20
         view.addSubview(unregisterButton)
     }
     
@@ -79,15 +69,13 @@ final class WelcomeViewController: BaseViewController {
         }
         
         logoutButton.snp.makeConstraints { make in
-            make.top.equalTo(welcomeLabel.snp.bottom).offset(148)
+            make.top.equalTo(welcomeLabel.snp.bottom).offset(140)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(48)
-            make.height.equalTo(64)
         }
         
         unregisterButton.snp.makeConstraints { make in
             make.top.equalTo(logoutButton.snp.bottom).offset(32)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(48)
-            make.height.equalTo(64)
         }
     }
 }

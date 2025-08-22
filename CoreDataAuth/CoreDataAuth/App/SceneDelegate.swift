@@ -8,6 +8,7 @@
 enum views {
     case start
     case welcome
+    case register
     
     var vc: UIViewController {
         switch self {
@@ -15,6 +16,8 @@ enum views {
             return StartViewController()
         case .welcome:
             return WelcomeViewController()
+        case .register:
+            return RegisterViewController()
         }
     }
 }
@@ -30,7 +33,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
         
-        window.rootViewController = views.welcome.vc
+        window.rootViewController = views.register.vc
         window.makeKeyAndVisible()
         
         self.window = window
