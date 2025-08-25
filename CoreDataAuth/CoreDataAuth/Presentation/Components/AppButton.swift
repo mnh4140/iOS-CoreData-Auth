@@ -41,14 +41,6 @@ class AppButton: UIButton {
         setConfig(height: size.height) //init시 setConfig 메서드 호출
     }
     
-//    convenience init(title: String) {
-//        self.init(title: title,
-//                  font: .systemFont(ofSize: 32, weight: .bold),
-//                  color: .main,
-//                  height: 92
-//        )
-//    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
