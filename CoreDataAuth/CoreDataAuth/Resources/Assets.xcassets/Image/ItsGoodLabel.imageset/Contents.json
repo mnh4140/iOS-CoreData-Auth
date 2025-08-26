@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "spartaLogo.png",
+      "filename" : "잇츠굿 문구.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "spartaLogo@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "spartaLogo@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

@@ -25,8 +25,8 @@ final class GradientBackgroundView: UIView {
         gradientLayer.frame = bounds
         
         gradientLayer.colors = [
-            UIColor(red: 1.0, green: 0.52, blue: 0.52, alpha: 1.0).cgColor, // #FF8585, 100%
-            UIColor(red: 0.6, green: 0.39, blue: 0.39, alpha: 0.38).cgColor  // #996464, 38%
+            UIColor(red: 1.0, green: 0.859, blue: 0.396, alpha: 1.0).cgColor, // #FF8585, 100%
+            UIColor(red: 0.882, green: 0.872, blue: 0.779, alpha: 0.38).cgColor  // #996464, 38%
         ]
         
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.0) // 위쪽 중앙

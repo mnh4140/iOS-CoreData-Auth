@@ -6,18 +6,18 @@
 //
 
 enum views {
-    case start
-    case welcome
-    case register
+    case login
+    case main
+    case signUp
     
     var vc: UIViewController {
         switch self {
-        case .start:
-            return StartViewController()
-        case .welcome:
-            return WelcomeViewController()
-        case .register:
-            return RegisterViewController()
+        case .login:
+            return LoginViewController()
+        case .main:
+            return MainViewController()
+        case .signUp:
+            return SignUpViewController()
         }
     }
 }
@@ -33,7 +33,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: windowScene)
         
-        window.rootViewController = views.register.vc
+        window.backgroundColor = .white
+        window.rootViewController = UINavigationController(rootViewController: views.login.vc)
         window.makeKeyAndVisible()
         
         self.window = window
