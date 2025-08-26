@@ -1,6 +1,9 @@
 # CoreDataAuth
 ## 📋 프로젝트 개요
-### MVVM 아키텍처에서 CoreData를 사용하여 회원가입과 로그인 기능을 구현을 시작으로 클린 아키텍처로 리팩토링 하는 프로젝트
+### Clean Architecture 학습을 위한 회원가입 앱
+- 프로젝트 목표 : **Clean Architecture 학습**
+  - 1차 목표 : MVVM 아키텍처와 CoreData를 사용하여 회원가입과 로그인 기능을 구현한 앱 개발
+  - 2차 목표 : 완성된 앱을 **Clean Architecture** 로 리팩토링
 - 프로젝트 명 : CoreDataAuth
 - 프로젝트 기간 : 2025.08.20 ~ 2025.09.05
 
@@ -19,7 +22,8 @@
 - 형상 관리 : Github
 
 ## 🎨 와이어 프레임
-<img width="566" height="877" alt="image" src="https://github.com/user-attachments/assets/54046082-577f-4fe3-bbf4-884ebc555c5b" />
+<!--<img width="566" height="877" alt="image" src="https://github.com/user-attachments/assets/54046082-577f-4fe3-bbf4-884ebc555c5b" />-->
+<img width="566" height="838" alt="image" src="https://github.com/user-attachments/assets/fa2d45a3-0b20-4646-9023-1678fd440c5b" />
 
 ---
 
