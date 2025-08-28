@@ -11,23 +11,23 @@ final class SignUpView: BaseView {
     // MARK: - Propertys
     private let titleLabel = UILabel()
     
-    private let idTextField = UITextField()
-    private let idUnderLineView = UIView()
-    private let idGuideLabel = UILabel()
+    let idTextField = UITextField()
+    let idUnderLineView = UIView()
+    let idGuideLabel = UILabel()
     
-    private let nicknameTextField = UITextField()
-    private let nicknameUnderLineView = UIView()
-    private let nicknameGuideLabel = UILabel()
+    let nicknameTextField = UITextField()
+    let nicknameUnderLineView = UIView()
+    let nicknameGuideLabel = UILabel()
     
-    private let passwordTextField = UITextField()
-    private let passwordUnderLineView = UIView()
-    private let passwordGuideLabel = UILabel()
+    let passwordTextField = UITextField()
+    let passwordUnderLineView = UIView()
+    let passwordGuideLabel = UILabel()
     
-    private let ckpasswordTextField = UITextField()
-    private let ckpasswordUnderLineView = UIView()
-    private let ckpasswordGuideLabel = UILabel()
+    let ckpasswordTextField = UITextField()
+    let ckpasswordUnderLineView = UIView()
+    let ckpasswordGuideLabel = UILabel()
     
-    private let registerButton = AppButton(title: "회원가입", size: .large)
+    let registerButton = AppButton(title: "회원가입", size: .large)
     
     // MARK: - LifeCycle
     override init(frame: CGRect) {
@@ -102,10 +102,13 @@ final class SignUpView: BaseView {
         self.addSubview(passwordUnderLineView)
         
         // 비밀번호 안내 글
-        passwordGuideLabel.text = "비밀번호는 영문과 숫자 10자리 내로 입력이 가능합니다."
+        passwordGuideLabel.text = "대소문자, 숫자, 특수문자를 조합하여 8~16자리까지 가능합니다."
         passwordGuideLabel.textColor = .black
         passwordGuideLabel.textAlignment = .left
+        passwordGuideLabel.adjustsFontSizeToFitWidth = true
+        passwordGuideLabel.minimumScaleFactor = 0.8
         passwordGuideLabel.font = .systemFont(ofSize: 12)
+        passwordGuideLabel.numberOfLines = 0
         self.addSubview(passwordGuideLabel)
         
         // 비밀번호 확인 입력 칸

@@ -12,7 +12,9 @@ final class CoreDataManager {
     // MARK: - Propertys
     static let shared = CoreDataManager()
     
+    // TODO: 백그라운드 context 생성해서 분리해야됨.
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    private let hasher = PasswordHasher() // 패스워드 해시로 저장
     
     // MARK: - Init
     private init() {}
@@ -27,7 +29,7 @@ final class CoreDataManager {
         let user = UserEntity(context: context)
         user.id = id
         user.nickname = nickname
-        user.passwordHash = password
+        user.passwordHash = hasher.hash(password) // 패스워드 해시 저장
         saveContext()
     }
     
@@ -48,6 +50,18 @@ final class CoreDataManager {
     func fetchUserID(id: String) -> UserEntity? {
         let request: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id)
+        do {
+            return try context.fetch(request).first
+        } catch {
+            print("Login Fetch Failed: \(error)")
+            return nil
+        }
+    }
+    
+    /// 닉네임 중복 검사
+    func fetchUserNickname(nickname: String) -> UserEntity? {
+        let request: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "nickname == %@", nickname)
         do {
             return try context.fetch(request).first
         } catch {
