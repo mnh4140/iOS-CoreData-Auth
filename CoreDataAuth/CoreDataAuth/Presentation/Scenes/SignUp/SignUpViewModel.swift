@@ -42,15 +42,14 @@ final class SignUpViewModel: ViewModelType {
         let password: Driver<String>
         let confirm: Driver<String>
         let closeTapped: Signal<Void> // 우측 상단 닫기 버튼 탭
-        let buttonTap: Signal<Void> // 회원가입 버튼 탭
         let signUpButtonTap: Signal<Void> // 회원가입 버튼 탭
     }
     
     struct Output {
-        let idValid: Driver<Bool>
-        let nicknameValid: Driver<Bool>
-        let passwordValid: Driver<Bool>
-        let confirmValid: Driver<Bool>
+        let idState: Driver<State>
+        let nicknameState: Driver<State>
+        let passwordState: Driver<State>
+        let confirmState: Driver<State>
         let dismissRequested: Signal<Void> // 닫기 버튼 이벤트
         let navigation: Signal<Navigation>
     }
@@ -58,7 +57,6 @@ final class SignUpViewModel: ViewModelType {
     var disposbag = DisposeBag()
     
     func transform(input: Input) -> Output {
-        let SuccessSignUp = input.buttonTap
         // 유효성 검사
         /*
          ^ : 문자열 시작
@@ -73,40 +71,75 @@ final class SignUpViewModel: ViewModelType {
         let passwordValidPattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,16}$"
         
         // 아이디 유효성 검사
-        let idValid = input.id
-            .map { $0.range(of: idValidPattern, options: .regularExpression) != nil }
-            .distinctUntilChanged()
+        let idState = input.id
+            .debounce(.milliseconds(400)) // 마지막 이벤트가 발생하고 400ms 동안 추가 이벤트가 없을 때 그 마지막 이벤트를 방출.
+            .distinctUntilChanged() // 이전 값과 새 값이 같으면 무시
+            .flatMapLatest { id -> Driver<State> in
+                guard !id.isEmpty else { return .just(.empty) }
+                guard id.range(of: idValidPattern, options: .regularExpression) != nil
+                else { return .just(.formatInvalid) }
+                
+                let result = Single<State>.create { single in
+                    let exists = (CoreDataManager.shared.fetchUserID(id: id) != nil)
+                    single(.success(exists ? .duplicate : .available))
+                    return Disposables.create()
+                }
+                    .asDriver(onErrorJustReturn: .error("중복 확인 중 오류 발생"))
+                
+                return result.asObservable().asDriver(onErrorJustReturn: .error("중복 확인 중 오류 발생"))
+            }
+            .startWith(.empty)
         
         // 닉네임 유효성 검사
-        let nicknameValid = input.nickname
-            .map { $0.range(of: nicknameValidPattern, options: .regularExpression) != nil }
+        let nicknameState = input.nickname
+            .debounce(.milliseconds(400))
             .distinctUntilChanged()
+            .flatMapLatest { nickname -> Driver<State> in
+                guard !nickname.isEmpty else { return .just(.empty) }
+                guard nickname.range(of: nicknameValidPattern, options: .regularExpression) != nil else { return .just(.formatInvalid) }
+                // TODO: DB 조회가 메인스레드에서 진행 -> 백그라운드로 진행하도록 리팩 해야됨
+                let exists = (CoreDataManager.shared.fetchUserNickname(nickname: nickname) != nil)
+                return .just(exists ? .duplicate : .available)
+            }
+            .startWith(.empty)
         
         // 비밀번호 유효성 검사
-        let passwordValid = input.password
-            .map { $0.range(of: passwordValidPattern, options: .regularExpression) != nil }
+        let passwordState = input.password
+            .debounce(.milliseconds(400))
             .distinctUntilChanged()
+            .flatMapLatest { password -> Driver<State> in
+                guard !password.isEmpty else { return .just(.empty) }
+                guard password.range(of: passwordValidPattern, options: .regularExpression) != nil else { return .just(.formatInvalid) }
+                
+                return .just(.available)
+            }
+            .startWith(.empty)
         
         // 비밀번호와 비밀번호 확인 칸이 동일한지 체크
-        let confirmValid = Driver.combineLatest(input.password, input.confirm)
-            .map { $0 == $1 && !$1.isEmpty }
-            .distinctUntilChanged()
+        let confirmState = Driver.combineLatest(input.password, input.confirm)
+            .debounce(.milliseconds(400))
+            .flatMapLatest { password, confirm -> Driver<State> in
+                guard !confirm.isEmpty else { return .just(.empty) }
+                guard password == confirm else { return .just(.formatInvalid) }
+                
+                return .just(.available)
+            }
+            .startWith(.empty)
         
         // 모든 항목이 다 맞으면 버튼 활성화 (아직 미구현)
-        let isEnabled = Driver.combineLatest(idValid, nicknameValid, passwordValid, confirmValid)
-            .map { $0 && $1 && $2 && $3 }
-            .distinctUntilChanged()
+//        let isEnabled = Driver.combineLatest(idValid, nicknameValid, passwordValid, confirmValid)
+//            .map { $0 && $1 && $2 && $3 }
+//            .distinctUntilChanged()
         
         let SuccessSignUp = input.signUpButtonTap
             .throttle(.milliseconds(500))
             .map {Navigation.main}
         
-        
         return Output(
-            idValid: idValid,
-            nicknameValid: nicknameValid,
-            passwordValid: passwordValid,
-            confirmValid: confirmValid,
+            idState: idState,
+            nicknameState: nicknameState,
+            passwordState: passwordState,
+            confirmState: confirmState,
             dismissRequested: input.closeTapped,
             navigation: SuccessSignUp
         )

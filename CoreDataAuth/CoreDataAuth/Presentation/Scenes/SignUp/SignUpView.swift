@@ -102,10 +102,13 @@ final class SignUpView: BaseView {
         self.addSubview(passwordUnderLineView)
         
         // 비밀번호 안내 글
-        passwordGuideLabel.text = "비밀번호는 영문과 숫자 10자리 내로 입력이 가능합니다."
+        passwordGuideLabel.text = "대소문자, 숫자, 특수문자를 조합하여 8~16자리까지 가능합니다."
         passwordGuideLabel.textColor = .black
         passwordGuideLabel.textAlignment = .left
+        passwordGuideLabel.adjustsFontSizeToFitWidth = true
+        passwordGuideLabel.minimumScaleFactor = 0.8
         passwordGuideLabel.font = .systemFont(ofSize: 12)
+        passwordGuideLabel.numberOfLines = 0
         self.addSubview(passwordGuideLabel)
         
         // 비밀번호 확인 입력 칸
