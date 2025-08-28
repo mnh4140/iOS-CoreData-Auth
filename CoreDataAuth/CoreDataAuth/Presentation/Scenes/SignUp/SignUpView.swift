@@ -11,21 +11,21 @@ final class SignUpView: BaseView {
     // MARK: - Propertys
     private let titleLabel = UILabel()
     
-    private let idTextField = UITextField()
-    private let idUnderLineView = UIView()
-    private let idGuideLabel = UILabel()
+    let idTextField = UITextField()
+    let idUnderLineView = UIView()
+    let idGuideLabel = UILabel()
     
-    private let nicknameTextField = UITextField()
-    private let nicknameUnderLineView = UIView()
-    private let nicknameGuideLabel = UILabel()
+    let nicknameTextField = UITextField()
+    let nicknameUnderLineView = UIView()
+    let nicknameGuideLabel = UILabel()
     
-    private let passwordTextField = UITextField()
-    private let passwordUnderLineView = UIView()
-    private let passwordGuideLabel = UILabel()
+    let passwordTextField = UITextField()
+    let passwordUnderLineView = UIView()
+    let passwordGuideLabel = UILabel()
     
-    private let ckpasswordTextField = UITextField()
-    private let ckpasswordUnderLineView = UIView()
-    private let ckpasswordGuideLabel = UILabel()
+    let ckpasswordTextField = UITextField()
+    let ckpasswordUnderLineView = UIView()
+    let ckpasswordGuideLabel = UILabel()
     
     let registerButton = AppButton(title: "회원가입", size: .large)
     
