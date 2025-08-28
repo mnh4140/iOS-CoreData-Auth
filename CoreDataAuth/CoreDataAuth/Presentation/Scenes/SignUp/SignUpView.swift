@@ -27,7 +27,7 @@ final class SignUpView: BaseView {
     private let ckpasswordUnderLineView = UIView()
     private let ckpasswordGuideLabel = UILabel()
     
-    private let registerButton = AppButton(title: "회원가입", size: .large)
+    let registerButton = AppButton(title: "회원가입", size: .large)
     
     // MARK: - LifeCycle
     override init(frame: CGRect) {

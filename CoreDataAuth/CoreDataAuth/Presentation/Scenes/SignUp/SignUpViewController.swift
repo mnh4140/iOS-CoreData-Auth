@@ -46,7 +46,8 @@ final class SignUpViewController: UIViewController {
         navigationItem.rightBarButtonItem = closeItem
         
         let input = SignUpViewModel.Input(
-            closeTapped: closeItem.rx.tap.asSignal() // 메인스레드 보장 & 에러 무시
+            closeTapped: closeItem.rx.tap.asSignal(), // 메인스레드 보장 & 에러 무시
+            buttonTap: signUpView.registerButton.rx.tap.asSignal()
         )
         
         let output = viewModel.transform(input: input)
@@ -56,6 +57,17 @@ final class SignUpViewController: UIViewController {
                 self?.dismiss(animated: true)
             })
             .disposed(by: disposeBag)
+        
+        output.navigation
+            .emit(onNext: { [weak self] nav in
+                switch nav {
+                case .main:
+                    // TODO: 회원가입 완료 Alert 띄우기
+                    self?.dismiss(animated: true)
+                case .error(let message):
+                    print("에러 : \(message)")
+                }
+            }).disposed(by: disposeBag)
     }
 
 }
