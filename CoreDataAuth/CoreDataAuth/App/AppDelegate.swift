@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        seedTestUserIfNeeded()
+        //seedTestUserIfNeeded()
         return true
     }
 
@@ -81,27 +81,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 // 테스트 용 아이디 생성
-extension AppDelegate {
-    private func seedTestUserIfNeeded() {
-        #if DEBUG // 디버그 빌드에서만
-        let flagKey = "didSeedTestUser_v1" // 버전 바꾸면 다시 시드 가능
-        let defaults = UserDefaults.standard
-
-        guard defaults.bool(forKey: flagKey) == false else { return }
-
-        // 이미 같은 id가 있으면 건너뜀 (중복 방지)
-        if CoreDataManager.shared.fetchUserID(id: "test01") == nil {
-            CoreDataManager.shared.createAppUser(
-                id: "test01",
-                nickname: "테스터",
-                password: "qwe123" // CoreDataManager 내부에서 해시 저장하도록 이미 수정했었지?
-            )
-            print("✅ Seeded test user: id=test01 / pw=qwe123")
-        } else {
-            print("ℹ️ test01 already exists, skipping seed")
-        }
-
-        defaults.set(true, forKey: flagKey)
-        #endif
-    }
-}
+//extension AppDelegate {
+//    private func seedTestUserIfNeeded() {
+//        #if DEBUG // 디버그 빌드에서만
+//        let flagKey = "didSeedTestUser_v1" // 버전 바꾸면 다시 시드 가능
+//        let defaults = UserDefaults.standard
+//
+//        guard defaults.bool(forKey: flagKey) == false else { return }
+//
+//        // 이미 같은 id가 있으면 건너뜀 (중복 방지)
+//        if CoreDataManager.shared.fetchUserID(id: "test01") == nil {
+//            CoreDataManager.shared.createAppUser(
+//                id: "test01",
+//                nickname: "테스터",
+//                password: "qwe123" // CoreDataManager 내부에서 해시 저장하도록 이미 수정했었지?
+//            )
+//            print("✅ Seeded test user: id=test01 / pw=qwe123")
+//        } else {
+//            print("ℹ️ test01 already exists, skipping seed")
+//        }
+//
+//        defaults.set(true, forKey: flagKey)
+//        #endif
+//    }
+//}
