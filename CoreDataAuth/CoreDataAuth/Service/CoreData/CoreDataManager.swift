@@ -9,6 +9,8 @@ import UIKit
 import CoreData
 import RxSwift
 
+enum CoreDataError: Error { case notFound }
+
 final class CoreDataManager {
     // MARK: - Propertys
     static let shared = CoreDataManager()
@@ -49,6 +51,28 @@ final class CoreDataManager {
         } catch {
             print("Login Fetch Failed: \(error)")
             return nil
+        }
+    }
+    
+    func rxFetchUser() -> Single<[(id: String, nickname: String, password: String)]> {
+        return Single.create { single in
+            let request: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+            request.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
+            
+            self.context.perform {
+                do {
+                    let users = try self.context.fetch(request).compactMap { m -> (id: String, nickname: String, password: String)? in
+                        guard let id = m.id,
+                                let nick = m.nickname,
+                                let pw = m.passwordHash else { return nil }
+                        return .init((id: id, nickname: nick, password: pw))
+                    }
+                    single(.success(users))
+                } catch {
+                    single(.failure(error))
+                }
+            }
+            return Disposables.create()
         }
     }
     
