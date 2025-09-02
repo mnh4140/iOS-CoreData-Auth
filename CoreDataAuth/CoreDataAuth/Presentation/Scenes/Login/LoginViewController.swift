@@ -44,7 +44,8 @@ final class LoginViewController: UIViewController {
     private func bindViewModel() {
         let input = LoginViewModel.Input(
             loginButtonTap: loginView.startButton.rx.tap.asObservable(),
-            signUpButtonTap: loginView.signUpButton.rx.tap.asObservable()
+            signUpButtonTap: loginView.signUpButton.rx.tap.asObservable(),
+            adminButtonTap: loginView.adminButton.rx.tap.asSignal()
         )
         
         let output = viewModel.transform(input: input)
@@ -80,5 +81,15 @@ final class LoginViewController: UIViewController {
                     print("오류 발생: \(message)")
                 }
             }).disposed(by: disposeBag)
+        
+        output.moveToAdmin
+            .emit(onNext: { [weak self] _ in
+                let vc = AdminViewController()
+                let modalNav = UINavigationController(rootViewController: vc)
+                modalNav.modalPresentationStyle = .fullScreen
+                modalNav.modalTransitionStyle = .coverVertical
+                self?.present(modalNav, animated: true)
+            })
+            .disposed(by: disposeBag)
     }
 }

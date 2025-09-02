@@ -19,10 +19,12 @@ final class LoginViewModel: ViewModelType {
     struct Input {
         let loginButtonTap: Observable<Void>
         let signUpButtonTap: Observable<Void>
+        let adminButtonTap: Signal<Void>
     }
     
     struct Output {
         let navigation: Driver<Navigation>
+        let moveToAdmin: Signal<Void>
     }
     
     var disposeBag = DisposeBag()
@@ -41,7 +43,8 @@ final class LoginViewModel: ViewModelType {
             }).disposed(by: disposeBag)
         
         return Output(
-            navigation: stepRelay.asDriver(onErrorJustReturn: .error("알 수 없는 오류"))
+            navigation: stepRelay.asDriver(onErrorJustReturn: .error("알 수 없는 오류")),
+            moveToAdmin: input.adminButtonTap
         )
     }
 }
