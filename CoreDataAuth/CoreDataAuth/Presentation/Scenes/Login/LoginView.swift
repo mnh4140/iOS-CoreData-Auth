@@ -24,6 +24,7 @@ final class LoginView: BaseView {
     // 외부에서 접근
     let startButton = AppButton(title: "로그인", size: .large)
     let signUpButton = UIButton()
+    let adminButton = UIButton()
 
     // MARK: - Methods
     override func setUI() {
@@ -73,6 +74,13 @@ final class LoginView: BaseView {
         signUpButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .regular)
         signUpButton.setTitleColor(.black, for: .normal)
         self.addSubview(signUpButton)
+        
+        // 테스트용 버튼
+        adminButton.setTitle("회원관리", for: .normal)
+        adminButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .regular)
+        adminButton.setTitleColor(.black, for: .normal)
+        self.addSubview(adminButton)
+        
         
     }
     
@@ -127,6 +135,11 @@ final class LoginView: BaseView {
         
         signUpButton.snp.makeConstraints { make in
             make.top.equalTo(startButton.snp.bottom).offset(16)
+            make.centerX.equalToSuperview()
+        }
+        
+        adminButton.snp.makeConstraints { make in
+            make.top.equalTo(signUpButton.snp.bottom).offset(8)
             make.centerX.equalToSuperview()
         }
     }

@@ -7,6 +7,9 @@
 
 import UIKit
 import CoreData
+import RxSwift
+
+enum CoreDataError: Error { case notFound }
 
 final class CoreDataManager {
     // MARK: - Propertys
@@ -21,16 +24,21 @@ final class CoreDataManager {
     
     // MARK: - Create
     /// 사용자 정보 생성
-    func createAppUser(id: String, nickname: String, password: String) {
-        if fetchUser(id: id, password: password) != nil {
-            print("이미 존재하는 사용자입니다.")
-            return
+    func createAppUser(id: String, nickname: String, password: String) -> Completable {
+        return Completable.create { completable in
+            if self.fetchUser(id: id, password: password) != nil {
+                // 이미 존재하는 경우
+                completable(.error(SignUpViewModel.SignUpError.duplicateID))
+            } else {
+                let user = UserEntity(context: self.context)
+                user.id = id
+                user.nickname = nickname
+                user.passwordHash = PasswordHasher().hash(password)
+                self.saveContext()
+                completable(.completed)
+            }
+            return Disposables.create()
         }
-        let user = UserEntity(context: context)
-        user.id = id
-        user.nickname = nickname
-        user.passwordHash = hasher.hash(password) // 패스워드 해시 저장
-        saveContext()
     }
     
     // MARK: - Read
@@ -43,6 +51,28 @@ final class CoreDataManager {
         } catch {
             print("Login Fetch Failed: \(error)")
             return nil
+        }
+    }
+    
+    func rxFetchUser() -> Single<[(id: String, nickname: String, password: String)]> {
+        return Single.create { single in
+            let request: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+            request.sortDescriptors = [NSSortDescriptor(key: "id", ascending: true)]
+            
+            self.context.perform {
+                do {
+                    let users = try self.context.fetch(request).compactMap { m -> (id: String, nickname: String, password: String)? in
+                        guard let id = m.id,
+                                let nick = m.nickname,
+                                let pw = m.passwordHash else { return nil }
+                        return .init((id: id, nickname: nick, password: pw))
+                    }
+                    single(.success(users))
+                } catch {
+                    single(.failure(error))
+                }
+            }
+            return Disposables.create()
         }
     }
     

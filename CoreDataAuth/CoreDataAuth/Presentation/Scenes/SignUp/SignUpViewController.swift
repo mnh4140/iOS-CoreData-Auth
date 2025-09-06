@@ -196,5 +196,12 @@ final class SignUpViewController: UIViewController {
                     self.signUpView.ckpasswordGuideLabel.text = "비밀번호가 중복될일이 없음"
                 }
             }).disposed(by: disposeBag)
+        
+        output.isEnabled
+            .drive(onNext: { [weak self] bool in
+                self?.signUpView.registerButton.isEnabled = bool
+                self?.signUpView.registerButton.backgroundColor = bool ? .main : .lightGray
+            })
+            .disposed(by: disposeBag)
     }
 }

@@ -52,9 +52,10 @@ final class SignUpViewModel: ViewModelType {
         let confirmState: Driver<State>
         let dismissRequested: Signal<Void> // 닫기 버튼 이벤트
         let navigation: Signal<Navigation>
+        let isEnabled: Driver<Bool>
     }
     
-    var disposbag = DisposeBag()
+    var disposeBag = DisposeBag()
     
     func transform(input: Input) -> Output {
         // 유효성 검사
@@ -86,7 +87,7 @@ final class SignUpViewModel: ViewModelType {
                 }
                     .asDriver(onErrorJustReturn: .error("중복 확인 중 오류 발생"))
                 
-                return result.asObservable().asDriver(onErrorJustReturn: .error("중복 확인 중 오류 발생"))
+                return result.asDriver(onErrorJustReturn: .error("중복 확인 중 오류 발생"))
             }
             .startWith(.empty)
         
@@ -126,14 +127,34 @@ final class SignUpViewModel: ViewModelType {
             }
             .startWith(.empty)
         
-        // 모든 항목이 다 맞으면 버튼 활성화 (아직 미구현)
-//        let isEnabled = Driver.combineLatest(idValid, nicknameValid, passwordValid, confirmValid)
-//            .map { $0 && $1 && $2 && $3 }
-//            .distinctUntilChanged()
+        // 모든 항목이 다 맞으면 버튼 활성화
+        let isEnabled = Driver
+            .combineLatest(idState, nicknameState, passwordState, confirmState)
+            .map { id, nickname, password, confirm in
+                self.isAvailable(id) &&
+                self.isAvailable(nickname) &&
+                self.isAvailable(password) &&
+                self.isAvailable(confirm)
+            }
+            .distinctUntilChanged()
         
-        let SuccessSignUp = input.signUpButtonTap
+        let userInfo = Driver
+            .combineLatest(input.id, input.nickname, input.password)
+        
+        let saveData: Signal<Navigation> = input.signUpButtonTap.asDriver(onErrorDriveWith: .empty())
             .throttle(.milliseconds(500))
-            .map {Navigation.main}
+            .withLatestFrom(isEnabled)   // 탭 시점의 활성 여부
+            .filter { $0 }
+            .withLatestFrom(userInfo)
+            .flatMapLatest { id, nickname, password in
+                // TODO: 데이터 저장은 백그라운트 큐로 변경하기
+                CoreDataManager.shared.createAppUser(id: id, nickname: nickname, password: password)
+                    .andThen(Single.just(Navigation.main))
+                    .asSignal(onErrorRecover: { error in
+                        let message = (error as? SignUpError)?.errorDescription ?? error.localizedDescription
+                        return .just(.error(message))
+                    })
+            }
         
         return Output(
             idState: idState,
@@ -141,7 +162,13 @@ final class SignUpViewModel: ViewModelType {
             passwordState: passwordState,
             confirmState: confirmState,
             dismissRequested: input.closeTapped,
-            navigation: SuccessSignUp
+            navigation: saveData,
+            isEnabled: isEnabled
         )
+    }
+    
+    // 헬퍼 메서드
+    private func isAvailable(_ state: State) -> Bool {
+        if case .available = state { return true } else { return false }
     }
 }
