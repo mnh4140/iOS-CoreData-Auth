@@ -11,7 +11,7 @@ import RxCocoa
 
 final class LoginViewModel: ViewModelType {
     enum Navigation {
-        case login
+        case main
         case signUp
         case error(String)
     }
@@ -19,31 +19,38 @@ final class LoginViewModel: ViewModelType {
     struct Input {
         let loginButtonTap: Observable<Void>
         let signUpButtonTap: Observable<Void>
+        let loginButtonTap: Signal<Void>
+        let signUpButtonTap: Signal<Void>
         let adminButtonTap: Signal<Void>
     }
     
     struct Output {
-        let navigation: Driver<Navigation>
+        let moveToMain: Signal<Void>
+        let moveToSignUp: Signal<Void>
         let moveToAdmin: Signal<Void>
     }
     
     var disposeBag = DisposeBag()
     
-    let stepRelay = PublishRelay<Navigation>()
-    
     func transform(input: Input) -> Output {
-        input.loginButtonTap
-            .subscribe(onNext: { [weak self] in
-                self?.stepRelay.accept(.login)
-            }).disposed(by: disposeBag)
         
-        input.signUpButtonTap
-            .subscribe(onNext: { [weak self] in
-                self?.stepRelay.accept(.signUp)
-            }).disposed(by: disposeBag)
+        // 로그인 버튼 탭
+        // id, pw 필드에 값을 본다.
+        // 비어있으면 비어있다는 에러 출력
+        // id, pw 필드에 값이 모두 있다면
+        // id, pw 값과 coredata 의 정보와 일치하는지 확인
+        //
+        let loginButtonTap = input.loginButtonTap
+            .throttle(.milliseconds(500))
+            .map { Navigation.main }
+        
+        let signUpButtonTap = input.signUpButtonTap
+            .throttle(.milliseconds(500))
+            .map { Navigation.signUp }
         
         return Output(
-            navigation: stepRelay.asDriver(onErrorJustReturn: .error("알 수 없는 오류")),
+            moveToMain: input.loginButtonTap,
+            moveToSignUp: input.signUpButtonTap,
             moveToAdmin: input.adminButtonTap
         )
     }
