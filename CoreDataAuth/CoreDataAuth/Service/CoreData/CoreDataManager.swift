@@ -11,6 +11,19 @@ import RxSwift
 
 enum CoreDataError: Error { case notFound }
 
+// 로그인 에러 정의
+enum LoginInError: LocalizedError {
+    case wrongPassword
+    case emptyFields
+
+    var errorDescription: String? {
+        switch self {
+        case .wrongPassword: return "아이디 또는 비밀번호가 올바르지 않습니다."
+        case .emptyFields: return "아이디와 비밀번호를 입력해주세요."
+        }
+    }
+}
+
 final class CoreDataManager {
     // MARK: - Propertys
     static let shared = CoreDataManager()
@@ -26,7 +39,7 @@ final class CoreDataManager {
     /// 사용자 정보 생성
     func createAppUser(id: String, nickname: String, password: String) -> Completable {
         return Completable.create { completable in
-            if self.fetchUser(id: id, password: password) != nil {
+            if self.fetchUserID(id: id) != nil {
                 // 이미 존재하는 경우
                 completable(.error(SignUpViewModel.SignUpError.duplicateID))
             } else {
@@ -51,6 +64,35 @@ final class CoreDataManager {
         } catch {
             print("Login Fetch Failed: \(error)")
             return nil
+        }
+    }
+    
+    /// 로그인 시, 계정정보 비교하기
+    func verifyLogin(id: String, password: String) -> Single<UserEntity> {
+        return Single.create { single in
+            let request: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", id)
+            request.fetchLimit = 1
+            
+            self.context.perform {
+                do {
+                    guard let user = try self.context.fetch(request).first,
+                          let hashed = user.passwordHash
+                    else {
+                        single(.failure(CoreDataError.notFound)) // ID 없음
+                        return
+                    }
+                    
+                    if self.hasher.verify(plain: password, hashed: hashed) {
+                        single(.success(user))
+                    } else {
+                        single(.failure(LoginInError.wrongPassword))
+                    }
+                } catch {
+                    single(.failure(error))
+                }
+            }
+            return Disposables.create()
         }
     }
     

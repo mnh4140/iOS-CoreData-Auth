@@ -13,11 +13,11 @@ final class LoginView: BaseView {
     private let logoImageView = UIImageView()
     private let textLogoImageView = UIImageView()
     
-    private let idTextField = UITextField()
+    let idTextField = UITextField()
     private let idUnderLineView = UIView()
     private let idGuideLabel = UILabel()
     
-    private let passwordTextField = UITextField()
+    let passwordTextField = UITextField()
     private let passwordUnderLineView = UIView()
     private let passwordGuideLabel = UILabel()
     
@@ -57,7 +57,7 @@ final class LoginView: BaseView {
         passwordTextField.placeholder = "비밀번호"
         passwordTextField.clearButtonMode = .whileEditing // 입력 중 x 버튼 생성
         passwordTextField.isSecureTextEntry = true // 문자열이 * 처리됨
-        passwordTextField.textContentType = .oneTimeCode // auto fill 제한
+        passwordTextField.textContentType = .password
         passwordTextField.autocapitalizationType = .none // 첫 영문자를 항상 소문자로 시작
         self.addSubview(passwordTextField)
         
