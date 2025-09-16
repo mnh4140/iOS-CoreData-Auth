@@ -29,19 +29,18 @@ final class LoginViewModel: ViewModelType {
         let moveToSignUp: Signal<Void>
         let moveToAdmin: Signal<Void>
         let showError: Signal<String>
-//        let isLoginEnabled: Driver<Bool>
     }
     
     var disposeBag = DisposeBag()
     
+    private var session: SessionStore
+    
+    init(session: SessionStore = DefaultSessionStore()) {
+        self.session = session
+    }
+    
     func transform(input: Input) -> Output {
         let creds = Driver.combineLatest(input.id, input.password)
-        
-        // 버튼 활성화: 공백이 아니면 true
-//        let isLoginEnabled = creds
-//            .map { !$0.0.trimmingCharacters(in: .whitespaces).isEmpty && // TODO: trimmingCharacters 가 뭐냐?
-//                !$0.1.trimmingCharacters(in: .whitespaces).isEmpty }
-//            .distinctUntilChanged()
         
         let errorRelay = PublishRelay<String>()
         let successRelay = PublishRelay<Void>()
@@ -50,45 +49,49 @@ final class LoginViewModel: ViewModelType {
         input.loginButtonTap
             .throttle(.milliseconds(500))
             .withLatestFrom(creds.asSignal(onErrorSignalWith: .empty()))
-            .flatMapLatest { id, pw -> Signal<Void> in
-                // 빈값 가드
+            .flatMapLatest { id, pw -> Signal<UserEntity> in
+                // 1) 입력 정리/가드
                 let idTrim = id.trimmingCharacters(in: .whitespaces)
                 let pwTrim = pw.trimmingCharacters(in: .whitespaces)
                 guard !idTrim.isEmpty, !pwTrim.isEmpty else {
                     errorRelay.accept(LoginInError.emptyFields.localizedDescription)
                     return .empty()
                 }
-                
+                // 2) 로그인 시도 (Single<UserEntity> -> Signal<UserEntity>)
                 return CoreDataManager.shared.verifyLogin(id: idTrim, password: pwTrim)
-                    .asSignal(onErrorSignalWith: .deferred {
-                        errorRelay.accept("아이디 또는 비밀번호가 올바르지 않습니다.")
-                        return .empty()
+                    .asSignal(onErrorRecover: { error in
+                        switch error {
+                        case CoreDataError.notFound:
+                            errorRelay.accept("존재하지 않는 아이디입니다.")
+                        case LoginInError.wrongPassword:
+                            errorRelay.accept("비밀번호가 올바르지 않습니다.")
+                        default:
+                            errorRelay.accept("로그인 중 오류가 발생했습니다.")
+                        }
+                        return .empty() // 에러 시 대체 시그널
                     })
-                    .map { _ in () } // 성공
             }
+            // 3) 성공 시 세션 저장
+            .do(onNext: { [weak self] user in
+                // user.id 가 Optional이면 안전하게 처리
+                if let uid = user.id, !uid.isEmpty {
+                    self?.session.currentUserId = uid
+                } else {
+                    // 혹시 모를 방어(없다면 자동로그인 off)
+                    self?.session.currentUserId = nil
+                }
+            })
+            // 4) 화면 전환 신호로 변환
+            .map { _ in () } // 성공
             .emit(to: successRelay)
             .disposed(by: disposeBag)
-        
-//        let loginButtonTap = input.loginButtonTap
-//            .throttle(.milliseconds(500))
-//            .map { Navigation.main }
         
         return Output(
             moveToMain: successRelay.asSignal(),
             moveToSignUp: input.signUpButtonTap,
             moveToAdmin: input.adminButtonTap,
             showError: errorRelay.asSignal()
-//            isLoginEnabled: isLoginEnabled
         )
-    }
-    
-    /// 로그인 처리
-    /// - 로그인 버튼을 누르면
-    /// - 아이디와 비밀번호를 코어데이터에 있는 계정 정보를 불러와 비교
-    /// - 아이디와 비밀번호가 일치하면 main 화면으로 이동
-    /// - 정보가 틀리면 alert 띄움
-    func login() {
-        
     }
 }
 
