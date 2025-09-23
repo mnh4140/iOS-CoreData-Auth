@@ -32,6 +32,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
+        
         let window = UIWindow(windowScene: windowScene)
         window.backgroundColor = .white
         self.window = window
@@ -40,26 +41,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let userId = self.session.currentUserId,
            CoreDataManager.shared.fetchUserID(id: userId) != nil {
             // 2) 유효한 유저면 메인으로
-            setRoot(MainViewController())
+            AppRouter.toMain(in: window, animated: false)
         } else {
             // 세션은 있지만 CoreData에 유저가 없다면 -> 안전하게 정리
             self.session.clear()
-            setRoot(LoginViewController())
+            AppRouter.toLogin(in: window, animated: false)
         }
     }
     
-    private func setRoot(_ vc: UIViewController, animated: Bool = false) {
-        let nav = UINavigationController(rootViewController: vc)
-        window?.rootViewController = nav
-        window?.makeKeyAndVisible()
-        
-        guard animated, let window = window else { return }
-        UIView.transition(with: window,
-                          duration: 0.25,
-                          options: .transitionCrossDissolve,
-                          animations: nil,
-                          completion: nil)
-    }
+//    private func setRoot(_ vc: UIViewController, animated: Bool = false) {
+//        let nav = UINavigationController(rootViewController: vc)
+//        window?.rootViewController = nav
+//        window?.makeKeyAndVisible()
+//        
+//        guard animated, let window = window else { return }
+//        UIView.transition(with: window,
+//                          duration: 0.25,
+//                          options: .transitionCrossDissolve,
+//                          animations: nil,
+//                          completion: nil)
+//    }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
