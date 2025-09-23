@@ -17,30 +17,35 @@ final class MainViewModel: ViewModelType {
     }
     
     struct Input {
-        let logoutButtonTrigger: Observable<Void>
-        let unregisterButtonTrigger: Observable<Void>
+        let logoutTap: Signal<Void> // 로그아웃
     }
     
     struct Output {
-        let navigation: Driver<Navigation>
+        let moveToLogin: Signal<Void>
     }
     
+    // MARK: - Propertys
+    private let session: SessionStore
     var disposeBag = DisposeBag()
-    private let navRelay = PublishRelay<Navigation>()
     
+    // MARK: - LifeCycle
+    init(session: SessionStore = DefaultSessionStore()) {
+        self.session = session
+    }
+    
+    // MARK: - Methods
     func transform(input: Input) -> Output {
-        input.logoutButtonTrigger
-            .subscribe(onNext: { [weak self] in
-                self?.navRelay.accept(.logout)
-            }).disposed(by: disposeBag)
+        let moveToLogin = input.logoutTap
+            .throttle(.milliseconds(500))
+            .do(onNext: { [weak self] in
+                self?.session.clear()   // 세션 제거
+            })
+            .map { }                    // Void로 방출
+            .asSignal(onErrorSignalWith: .empty())
         
-        input.unregisterButtonTrigger
-            .subscribe(onNext: { [ weak self] in
-                self?.navRelay.accept(.unregister)
-            }).disposed(by: disposeBag)
         
         return Output(
-            navigation: navRelay.asDriver(onErrorJustReturn: .error("에러 발생"))
+            moveToLogin: moveToLogin
         )
     }
 }
