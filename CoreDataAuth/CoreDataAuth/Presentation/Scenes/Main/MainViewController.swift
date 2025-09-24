@@ -16,8 +16,9 @@ final class MainViewController: UIViewController {
     private let mainView = MainView()
     private let viewModel = MainViewModel()
     private var disposeBag = DisposeBag()
-    private let logoutButtonTrigger = PublishRelay<Void>()
-    private let unregisterButtonTrigger = PublishRelay<Void>()
+    
+    // "탈퇴 확인"을 흘려보낼 릴레이
+    private let deleteConfirmRelay = PublishRelay<Void>()
     
     // MARK: - LifeCycle
     override func loadView() {
@@ -32,24 +33,15 @@ final class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        bindButtons()
         bindViewModel()
+        bindDeleteAlert()  // 탈퇴 확인 알럿 트리거
     }
     
     // MARK: - Methods
-    func bindButtons() {
-        mainView.logoutButton.rx.tap
-            .bind(to: logoutButtonTrigger)
-            .disposed(by: disposeBag)
-        
-        mainView.unregisterButton.rx.tap
-            .bind(to: unregisterButtonTrigger)
-            .disposed(by: disposeBag)
-    }
-    
     func bindViewModel() {
         let input = MainViewModel.Input(
-            logoutTap: mainView.logoutButton.rx.tap.asSignal()
+            logoutTap: mainView.logoutButton.rx.tap.asSignal(),
+            deleteConfirmTap: deleteConfirmRelay.asSignal()
         )
         
         let output = viewModel.transform(input: input)
@@ -57,5 +49,31 @@ final class MainViewController: UIViewController {
         output.moveToLogin
             .emit(onNext: { AppRouter.toLogin() })   // 루트 교체
             .disposed(by: disposeBag)
+        
+        output.showError
+            .emit(onNext: { [weak self] msg in
+                let ac = UIAlertController(title: "오류", message: msg, preferredStyle: .alert)
+                ac.addAction(UIAlertAction(title: "확인", style: .default))
+                self?.present(ac, animated: true)
+            })
+            .disposed(by: disposeBag)
     }
+    
+    /// 탈퇴 버튼 탭 → 확인 알럿 → '탈퇴' 선택 시 deleteConfirmRelay 방출
+        private func bindDeleteAlert() {
+            mainView.unregisterButton.rx.tap
+                .bind(onNext: { [weak self] in
+                    let ac = UIAlertController(
+                        title: "회원 탈퇴",
+                        message: "정말 탈퇴하시겠어요?",
+                        preferredStyle: .alert
+                    )
+                    ac.addAction(UIAlertAction(title: "취소", style: .cancel))
+                    ac.addAction(UIAlertAction(title: "탈퇴", style: .destructive, handler: { _ in
+                        self?.deleteConfirmRelay.accept(())
+                    }))
+                    self?.present(ac, animated: true)
+                })
+                .disposed(by: disposeBag)
+        }
 }
