@@ -145,9 +145,28 @@ final class CoreDataManager {
     // MARK: - Update
     
     // MARK: - Delete
-    func deleteAppUser(user: UserEntity) {
-        context.delete(user)
-        saveContext()
+    func deleteAppUser(withId id: String) -> Completable {
+        return Completable.create { completable in
+            let request: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", id)
+            request.fetchLimit = 1
+            
+            self.context.perform {
+                do {
+                    guard let user = try self.context.fetch(request).first else {
+                        completable(.error(CoreDataError.notFound))
+                        return
+                    }
+                    self.context.delete(user)
+                    try self.context.save()
+                    completable(.completed)
+                } catch {
+                    self.context.rollback()
+                    completable(.error(error))
+                }
+            }
+            return Disposables.create()
+        }
     }
     
     // MARK: - Save
