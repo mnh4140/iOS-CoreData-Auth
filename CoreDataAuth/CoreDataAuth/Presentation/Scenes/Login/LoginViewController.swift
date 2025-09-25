@@ -27,7 +27,6 @@ final class LoginViewController: UIViewController {
     // 네비게이션 영역 숨김
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        //navigationController?.setNavigationBarHidden(true, animated: false)
         navigationController?.isNavigationBarHidden = true
     }
     
@@ -104,13 +103,5 @@ final class LoginViewController: UIViewController {
                 self?.present(ac, animated: true)
             })
             .disposed(by: disposeBag)
-        
-        // 버튼 활성화
-//        output.isLoginEnabled
-//            .drive(onNext: { [weak self] enabled in
-//                self?.loginView.startButton.isEnabled = enabled
-//                self?.loginView.startButton.alpha = enabled ? 1.0 : 0.5
-//            })
-//            .disposed(by: disposeBag)
     }
 }

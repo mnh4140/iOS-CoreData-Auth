@@ -17,7 +17,7 @@ final class LoginView: BaseView {
     private let idUnderLineView = UIView()
     private let idGuideLabel = UILabel()
     
-    let passwordTextField = UITextField()
+    let passwordTextField = PasswordTextField() // 커스텀 컴포넌트
     private let passwordUnderLineView = UIView()
     private let passwordGuideLabel = UILabel()
     
@@ -25,13 +25,13 @@ final class LoginView: BaseView {
     let startButton = AppButton(title: "로그인", size: .large)
     let signUpButton = UIButton()
     let adminButton = UIButton()
-
+    
     // MARK: - Methods
     override func setUI() {
         // 바탕 색
         gradientView.alpha = 0.38
         self.addSubview(gradientView)
-
+        
         // 로고 이미지
         logoImageView.image = .itsGoodLogo
         self.addSubview(logoImageView)
@@ -53,19 +53,13 @@ final class LoginView: BaseView {
         self.addSubview(idUnderLineView)
         
         // 비밀번호 입력 칸
-        passwordTextField.font = .systemFont(ofSize: 17)
-        passwordTextField.placeholder = "비밀번호"
-        passwordTextField.clearButtonMode = .whileEditing // 입력 중 x 버튼 생성
-        passwordTextField.isSecureTextEntry = true // 문자열이 * 처리됨
-        passwordTextField.textContentType = .password
-        passwordTextField.autocapitalizationType = .none // 첫 영문자를 항상 소문자로 시작
         self.addSubview(passwordTextField)
         
         // 비밀번호 밑줄
         passwordUnderLineView.layer.borderWidth = 1
         passwordUnderLineView.layer.borderColor = UIColor.subColor1.cgColor
         self.addSubview(passwordUnderLineView)
- 
+        
         // 시작하기 버튼
         self.addSubview(startButton)
         
@@ -80,8 +74,6 @@ final class LoginView: BaseView {
         adminButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .regular)
         adminButton.setTitleColor(.black, for: .normal)
         self.addSubview(adminButton)
-        
-        
     }
     
     override func setConstraints() {
